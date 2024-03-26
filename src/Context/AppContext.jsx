@@ -17,54 +17,7 @@ export default function AppContextProvider({ children }) {
   // Arrays to track total income and outcome for potential calculations
   const [totalIncome , setTotalIncome] = useState([0]);
   const [totalOitcome , setTotalOitcome] = useState([0]);
-  // Function to handle adding a new transaction to the cart
-  const addBtnHandel = () => {
-    setCart((prev) => {
-      return [
-        ...prev,
-        {
-          id: Date.now(), // Generate a unique ID for the transaction
-          cost: cost,
-          describe: describe,
-          type: type,
-          date: date,
-        },
-      ];
-    });
-    localStorage.setItem("cart", JSON.stringify(cart));
-  if (type === "Income") {
-    // Calculate the new total income array
-    let addVal = Number(cost);
-    const newTotalIncome = [...totalIncome, addVal];
-    // Calculate the sum of the total income array
-    const totalIncomeSum = newTotalIncome.reduce((sum, item) => sum + item, 0);
-    // Update both states with the new values
-    setTotalIncome(newTotalIncome);
-    setIncome(totalIncomeSum);
-    localStorage.setItem("income", JSON.stringify(income));
-  }else{
-    // Calculate the new total outcome array
-    let addVal = Number(cost);
-    const newTotalOutcome = [...totalOitcome, addVal];
-    // Calculate the sum of the total outcome array
-    const totalOutcomeSum = newTotalOutcome.reduce((sum, item) => sum + item, 0);
-    // Update both states with the new values
-    setTotalOitcome(newTotalOutcome);
-    setOutcome(totalOutcomeSum);
-    localStorage.setItem("outcome", JSON.stringify(outcome));
-  }
-  // Clear input fields for the next transaction
-    setCost(0);
-    setDescribe("");
-    setDate("");
-    setType("Income");
-  };
-  //handel total amount
-  useEffect(()=>{
-    setTotal(income - outcome);
-    localStorage.setItem("total", JSON.stringify(total));
-  },[income,outcome])
-  // Load the data from local storage on component mount
+  //fetching data from local storage
   useEffect(() => {
     const storedCart = localStorage.getItem("cart");
     if (storedCart) {
@@ -83,6 +36,59 @@ export default function AppContextProvider({ children }) {
       setTotal(JSON.parse(storedTotal));
     }
   }, []);
+  // Function to handle adding a new transaction to the cart
+  const addBtnHandel = () => {
+    const newCart = [
+    ...cart,
+    {
+      id: Date.now(),  // Generate a unique ID for the transaction
+      cost: cost,
+      describe: describe,
+      type: type,
+      date: date,
+    },
+  ];
+  setCart(newCart);
+  localStorage.setItem("cart", JSON.stringify(newCart));
+  
+  if (type === "Income") {
+    const newTotalIncome = [...totalIncome, Number(cost)];
+    const totalIncomeSum = newTotalIncome.reduce((sum, item) => sum + item, 0);
+    setTotalIncome(newTotalIncome);
+    setIncome(totalIncomeSum);
+    localStorage.setItem("income", JSON.stringify(totalIncomeSum));
+  } else {
+    const newTotalOutcome = [...totalOitcome, Number(cost)];
+    const totalOutcomeSum = newTotalOutcome.reduce((sum, item) => sum + item, 0);
+    setTotalOitcome(newTotalOutcome);
+    setOutcome(totalOutcomeSum);
+    localStorage.setItem("outcome", JSON.stringify(totalOutcomeSum));
+  }
+
+  // Clear input fields for the next transaction
+    setCost(0);
+    setDescribe("");
+    setDate("");
+    setType("Income");
+  };
+  //handel total amount
+  useEffect(()=>{
+    setTotal(income - outcome);
+    localStorage.setItem("total", JSON.stringify(total));
+  },[income,outcome])
+  //newSets
+  useEffect(() => {
+    localStorage.setItem("cart", JSON.stringify(cart));
+  }, [cart]);
+  useEffect(() => {
+    localStorage.setItem("income", JSON.stringify(income));
+  }, [income]);
+  useEffect(() => {
+    localStorage.setItem("outcome", JSON.stringify(outcome));
+  }, [outcome]);
+  useEffect(() => {
+    localStorage.setItem("total", JSON.stringify(total));
+  }, [total]);
   // Provide the context values to child components
   return (
     <AppContext.Provider value={{cost,outcome,total,setCost,setDescribe,describe,type,setType,cart,setCart,income,setIncome,outcome,setOutcome,total,setTotal,date,setDate, addBtnHandel}}>
